@@ -108,13 +108,13 @@ export function renderToolsLine(ctx: RenderContext): string {
   const running = tools.filter(t => t.status === 'running');
   for (const tool of running) {
     const target = tool.target ? `: ${truncate(tool.target, 30)}` : '';
-    parts.push(c(ctx.config.colors.accent, `\u25D0 ${tool.name}${target}`));
+    parts.push(c(ctx.config.colors.accent, `\u25D0 ${shortToolName(tool.name)}${target}`));
   }
 
   const completed = tools.filter(t => t.status === 'completed');
   const grouped = new Map<string, number>();
   for (const tool of completed) {
-    grouped.set(tool.name, (grouped.get(tool.name) ?? 0) + 1);
+    grouped.set(shortToolName(tool.name), (grouped.get(shortToolName(tool.name)) ?? 0) + 1);
   }
   for (const [name, count] of grouped) {
     const countStr = count > 1 ? ` \u00D7${count}` : '';
@@ -123,7 +123,7 @@ export function renderToolsLine(ctx: RenderContext): string {
 
   const errored = tools.filter(t => t.status === 'error');
   for (const tool of errored) {
-    parts.push(c('red', `\u2717 ${tool.name}`));
+    parts.push(c('red', `\u2717 ${shortToolName(tool.name)}`));
   }
 
   if (parts.length === 0) return '';
@@ -251,4 +251,14 @@ export function renderMemoryLine(ctx: RenderContext): string {
 function truncate(text: string, maxLen: number): string {
   if (text.length <= maxLen) return text;
   return text.slice(0, maxLen - 1) + '\u2026';
+}
+
+function shortToolName(name: string): string {
+  // mcp__chrome-devtools__evaluate_script → evaluate_script
+  // mcp__shipsafe__shipsafe_scan → shipsafe_scan
+  if (name.startsWith('mcp__')) {
+    const parts = name.split('__');
+    return parts[parts.length - 1];
+  }
+  return name;
 }
