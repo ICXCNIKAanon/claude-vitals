@@ -32,10 +32,8 @@ export function c(color: string, text: string, opts?: ColorOpts): string {
   return `${prefix}${colorCode}${text}\x1b[0m`;
 }
 
-const ANSI_RE = /\x1b\[[0-9;]*m/g;
-
 export function stripAnsi(text: string): string {
-  return text.replace(ANSI_RE, '');
+  return text.replace(/\x1b\[[0-9;]*m/g, '');
 }
 
 export function visibleLength(text: string): number {
