@@ -47,26 +47,7 @@ Every line is **reactive** — it only appears when relevant. No agents running?
 ## Install
 
 ```bash
-# 1. Clone and build
-git clone https://github.com/ICXCNIKAanon/claude-vitals.git ~/claude-vitals
-cd ~/claude-vitals
-npm install && npm run build
-
-# 2. Add to Claude Code settings (~/.claude/settings.json)
-# Add this to your settings.json:
-```
-
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "node /path/to/claude-vitals/dist/bin.js"
-  }
-}
-```
-
-```bash
-# 3. Restart Claude Code — vitals appear immediately
+git clone https://github.com/ICXCNIKAanon/claude-vitals.git ~/claude-vitals && cd ~/claude-vitals && npm install && npm run build && node -e "const fs=require('fs'),p=require('path'),f=p.join(require('os').homedir(),'.claude','settings.json');let s={};try{s=JSON.parse(fs.readFileSync(f,'utf-8'))}catch{};s.statusLine={type:'command',command:'node '+p.join(require('os').homedir(),'claude-vitals','dist','bin.js')};fs.writeFileSync(f,JSON.stringify(s,null,2));console.log('Done! Restart Claude Code to see vitals.')"
 ```
 
 ## Configuration
