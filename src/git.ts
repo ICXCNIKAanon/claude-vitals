@@ -49,8 +49,8 @@ export function parseGitStatus(output: string): {
     const working = line[1];
 
     if (line.startsWith('??')) { untracked++; continue; }
-    if (index === 'A') added++;
-    if (index === 'D' || working === 'D') deleted++;
+    if (index === 'A') { added++; continue; }
+    if (index === 'D' || working === 'D') { deleted++; continue; }
     if (index === 'M' || working === 'M' || index === 'R' || index === 'C') modified++;
   }
 

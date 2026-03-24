@@ -1,4 +1,4 @@
-import { c, visibleLength } from './color.ts';
+import { c } from './color.ts';
 import { renderBar, getAdaptiveBarWidth } from './bar.ts';
 import { formatDuration, formatTokens } from '../system.ts';
 import { formatCost } from '../cost.ts';
@@ -199,7 +199,7 @@ export function renderRateLimitsLine(ctx: RenderContext): string {
   // 7-day weekly limit
   if (limits.seven_day && limits.seven_day.used_percentage != null) {
     const pct = Math.round(limits.seven_day.used_percentage);
-    if (pct >= ctx.config.thresholds.sevenDayShow || pct > 0) {
+    if (pct > 0) {
       const color = pct >= 90 ? ctx.config.colors.danger :
                     pct >= 75 ? 'magenta' : 'blue';
       const resetStr = limits.seven_day.resets_at ? formatResetTime(limits.seven_day.resets_at) : '';
