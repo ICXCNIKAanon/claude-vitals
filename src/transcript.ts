@@ -98,20 +98,10 @@ export function parseTranscriptLines(lines: string[]): TranscriptState {
             continue;
           }
 
-          if (name === 'TaskCreate' && input) {
-            todos.push({
-              id: id,
-              content: input.subject ?? input.description ?? '',
-              status: 'pending',
-            });
-            continue;
-          }
-
-          if (name === 'TaskUpdate' && input?.taskId) {
-            const existing = todos.find(t => t.id === input.taskId);
-            if (existing && input.status) {
-              existing.status = input.status;
-            }
+          // Skip TaskCreate/TaskUpdate — their IDs don't match
+          // (tool_use ID vs task system ID). Only TodoWrite gives
+          // a reliable complete snapshot of todo state.
+          if (name === 'TaskCreate' || name === 'TaskUpdate') {
             continue;
           }
 
