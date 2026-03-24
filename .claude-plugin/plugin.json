@@ -1,0 +1,13 @@
+{
+  "name": "claude-vitals",
+  "version": "0.1.0",
+  "description": "Real-time session vitals — context health, tools, agents, todos, cost",
+  "statusline": {
+    "command": "node",
+    "args": ["dist/bin.js"]
+  },
+  "commands": ["commands/configure.md"],
+  "links": {
+    "repository": "https://github.com/ICXCNIKAanon/claude-vitals"
+  }
+}
