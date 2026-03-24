@@ -5,8 +5,8 @@
   "main": "dist/bin.js",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch",
     "test": "node --test tests/**/*.test.ts --experimental-strip-types",
     "test:coverage": "c8 node --test tests/**/*.test.ts --experimental-strip-types"
   },
