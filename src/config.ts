@@ -7,7 +7,7 @@ export const DEFAULT_CONFIG: VitalsConfig = {
   layout: 'auto',
   show: {
     contextBar: true, cost: true, git: true, tools: true,
-    agents: true, todos: true, memory: true, speed: true, duration: true,
+    agents: true, todos: true, memory: false, speed: true, duration: true,
   },
   contextValue: 'both',
   thresholds: { contextWarn: 70, contextDanger: 85, sevenDayShow: 80 },

@@ -7,10 +7,14 @@ describe('DEFAULT_CONFIG', () => {
     assert.strictEqual(DEFAULT_CONFIG.layout, 'auto');
   });
 
-  it('shows everything by default', () => {
-    for (const [key, val] of Object.entries(DEFAULT_CONFIG.show)) {
-      assert.strictEqual(val, true, `show.${key} should be true`);
-    }
+  it('has correct show defaults', () => {
+    assert.strictEqual(DEFAULT_CONFIG.show.contextBar, true);
+    assert.strictEqual(DEFAULT_CONFIG.show.tools, true);
+    assert.strictEqual(DEFAULT_CONFIG.show.agents, true);
+    assert.strictEqual(DEFAULT_CONFIG.show.git, true);
+    assert.strictEqual(DEFAULT_CONFIG.show.cost, true);
+    assert.strictEqual(DEFAULT_CONFIG.show.duration, true);
+    assert.strictEqual(DEFAULT_CONFIG.show.memory, false);
   });
 
   it('has sensible thresholds', () => {
