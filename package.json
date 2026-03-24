@@ -1,0 +1,20 @@
+{
+  "name": "claude-vitals",
+  "version": "0.1.0",
+  "description": "Claude Code statusline plugin — real-time session vitals",
+  "main": "dist/bin.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "node --test tests/**/*.test.ts --experimental-strip-types",
+    "test:coverage": "c8 node --test tests/**/*.test.ts --experimental-strip-types"
+  },
+  "keywords": ["claude-code", "statusline", "plugin"],
+  "author": "ICXCNIKAanon",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "c8": "^10.0.0"
+  }
+}
