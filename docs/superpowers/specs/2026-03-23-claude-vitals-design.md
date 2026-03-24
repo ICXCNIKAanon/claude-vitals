@@ -26,7 +26,7 @@ Claude Code (every ~300ms):
 
 ### Build & Distribution
 
-TypeScript compiled to JavaScript. Ships as compiled JS in `dist/`. Build target: ES2022, NodeNext modules, Node.js 18+.
+TypeScript compiled to JavaScript. Ships as compiled JS in `dist/`. Build target: ES2022, NodeNext modules, Node.js 22+ (LTS). Tests use `--experimental-strip-types` to run TypeScript directly.
 
 ```bash
 npm run build    # tsc → dist/
