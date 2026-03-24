@@ -5,6 +5,7 @@ import {
   renderToolsLine,
   renderAgentsLine,
   renderTodosLine,
+  renderRateLimitsLine,
   renderMemoryLine,
 } from './elements.ts';
 import type { RenderContext, LayoutMode } from '../types.ts';
@@ -45,6 +46,9 @@ function renderExpanded(ctx: RenderContext): string {
 
   const todosLine = renderTodosLine(ctx);
   if (todosLine) lines.push(todosLine);
+
+  const rateLimitsLine = renderRateLimitsLine(ctx);
+  if (rateLimitsLine) lines.push(rateLimitsLine);
 
   const memoryLine = renderMemoryLine(ctx);
   if (memoryLine) lines.push(memoryLine);

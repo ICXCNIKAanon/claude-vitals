@@ -133,17 +133,30 @@ export function renderToolsLine(ctx: RenderContext): string {
 export function renderAgentsLine(ctx: RenderContext): string {
   if (!ctx.config.show.agents) return '';
 
-  const running = ctx.transcript.agents.filter(a => a.status === 'running');
-  if (running.length === 0) return '';
+  const agents = ctx.transcript.agents;
+  if (agents.length === 0) return '';
 
-  return running.map(agent => {
+  const running = agents.filter(a => a.status === 'running');
+  const completed = agents.filter(a => a.status === 'completed');
+
+  const parts: string[] = [];
+
+  // Running agents — show individually with details
+  for (const agent of running) {
     const modelTag = agent.model ? c(ctx.config.colors.muted, ` [${agent.model}]`) : '';
     const desc = truncate(agent.description, 40);
     const elapsed = formatDuration(Math.floor((Date.now() - agent.startTime) / 1000));
-    return c(ctx.config.colors.accent, `\u25D0 ${agent.type}`) +
+    parts.push(c(ctx.config.colors.accent, `\u25D0 ${agent.type}`) +
       modelTag +
-      c(ctx.config.colors.muted, `: ${desc} (${elapsed})`);
-  }).join('  ');
+      c(ctx.config.colors.muted, `: ${desc} (${elapsed})`));
+  }
+
+  // Completed agents — aggregate count
+  if (completed.length > 0) {
+    parts.push(c('green', `\u2713 ${completed.length} agent${completed.length > 1 ? 's' : ''} done`, { dim: true }));
+  }
+
+  return parts.join(c(ctx.config.colors.muted, ' \u2502 '));
 }
 
 export function renderTodosLine(ctx: RenderContext): string {
@@ -162,6 +175,72 @@ export function renderTodosLine(ctx: RenderContext): string {
   return c(color, `\u25B8 Tasks ${completed}/${total}`) +
     '  ' +
     renderBar(percent, barWidth, color, ctx.config.colors.muted);
+}
+
+export function renderRateLimitsLine(ctx: RenderContext): string {
+  const limits = ctx.stdin.rate_limits;
+  if (!limits) return '';
+
+  const parts: string[] = [];
+
+  // 5-hour session limit
+  if (limits.five_hour && limits.five_hour.used_percentage != null) {
+    const pct = Math.round(limits.five_hour.used_percentage);
+    const color = pct >= 90 ? ctx.config.colors.danger :
+                  pct >= 75 ? 'magenta' : 'blue';
+    const resetStr = limits.five_hour.resets_at ? formatResetTime(limits.five_hour.resets_at) : '';
+    const barWidth = 8;
+    parts.push(
+      c(ctx.config.colors.muted, '5h: ') +
+      renderBar(pct, barWidth, color, ctx.config.colors.muted) +
+      '  ' + c(color, `${pct}%`) +
+      (resetStr ? c(ctx.config.colors.muted, ` resets ${resetStr}`, { dim: true }) : '')
+    );
+  }
+
+  // 7-day weekly limit
+  if (limits.seven_day && limits.seven_day.used_percentage != null) {
+    const pct = Math.round(limits.seven_day.used_percentage);
+    if (pct >= ctx.config.thresholds.sevenDayShow || pct > 0) {
+      const color = pct >= 90 ? ctx.config.colors.danger :
+                    pct >= 75 ? 'magenta' : 'blue';
+      const resetStr = limits.seven_day.resets_at ? formatResetTime(limits.seven_day.resets_at) : '';
+      const barWidth = 8;
+      parts.push(
+        c(ctx.config.colors.muted, '7d: ') +
+        renderBar(pct, barWidth, color, ctx.config.colors.muted) +
+        '  ' + c(color, `${pct}%`) +
+        (resetStr ? c(ctx.config.colors.muted, ` resets ${resetStr}`, { dim: true }) : '')
+      );
+    }
+  }
+
+  if (parts.length === 0) return '';
+  return parts.join('  ');
+}
+
+function formatResetTime(timestamp: number): string {
+  const now = Date.now();
+  const diff = timestamp - now;
+
+  if (diff <= 0) return 'soon';
+
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+  if (hours >= 24) {
+    const days = Math.floor(hours / 24);
+    const date = new Date(timestamp);
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const day = dayNames[date.getDay()];
+    const h = date.getHours();
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return `${day} ${h12}:${String(date.getMinutes()).padStart(2, '0')} ${ampm}`;
+  }
+
+  if (hours > 0) return `in ${hours}h ${minutes}m`;
+  return `in ${minutes}m`;
 }
 
 export function renderMemoryLine(ctx: RenderContext): string {
