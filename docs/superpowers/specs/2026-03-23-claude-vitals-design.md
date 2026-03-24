@@ -10,13 +10,31 @@ A Claude Code statusline plugin that displays real-time session vitals: context 
 
 ## Architecture
 
-### Plugin Type
+### Plugin Type & Process Lifecycle
 
-Claude Code statusline subprocess. Invoked every ~300ms. Receives JSON via stdin, outputs ANSI-styled lines to stdout.
+Claude Code statusline subprocess. **Short-lived**: a new process is spawned each render cycle (~300ms). Each invocation receives a single JSON blob via stdin, writes ANSI lines to stdout, and exits. There is no persistent process or streaming stdin.
+
+This means:
+- No in-memory state survives between cycles
+- Transcript parsing results must be cached to disk (see Transcript Caching)
+- Startup must be fast — no heavy initialization
 
 ```
-Claude Code → stdin (JSON) → claude-vitals → stdout (ANSI lines) → statusline
+Claude Code (every ~300ms):
+  spawn process → pipe JSON to stdin → read stdout → kill process
 ```
+
+### Build & Distribution
+
+TypeScript compiled to JavaScript. Ships as compiled JS in `dist/`. Build target: ES2022, NodeNext modules, Node.js 18+.
+
+```bash
+npm run build    # tsc → dist/
+```
+
+Claude Code invokes: `node dist/index.js`
+
+**Installation:** Via Claude Code plugin marketplace, or manual clone + build.
 
 ### File Structure
 
@@ -177,11 +195,15 @@ Per-session cost based on model + tokens:
 | Sonnet 4.6 | $3 | $15 |
 | Haiku 4.5 | $0.80 | $4 |
 
-Cache reads at discounted rate. Shows `~$0.47` on context line. Hidden when <$0.01. Ballpark, not billing.
+Cache read tokens at 10% of input rate. Cache creation tokens at 125% of input rate (per Anthropic pricing). Shows `~$0.47` on context line. Hidden when <$0.01. Ballpark, not billing.
 
 ### 2. Autocompact Warning
 
-Context bar shifts to yellow at ~80%, red + `AUTOCOMPACT SOON` at 90%+.
+Separate from the general context color scheme (which uses `contextWarn` at 70% and `contextDanger` at 85%). The autocompact warning adds a **label** overlay:
+- At 85%+ (contextDanger threshold): bold treatment on the bar
+- At 90%+: `AUTOCOMPACT SOON` label appended to the context line
+
+The bar color follows the standard thresholds (green → yellow at 70% → red at 85%). The autocompact label is additive — it appears on top of the red bar at 90%+.
 
 ### 3. Session Duration
 
@@ -211,8 +233,8 @@ interface VitalsConfig {
     tools?: boolean         // default: true
     agents?: boolean        // default: true
     todos?: boolean         // default: true
-    memory?: boolean        // default: true
-    speed?: boolean         // default: true
+    memory?: boolean        // default: true — system RAM usage (e.g., "RAM: 12.5 / 16 GB")
+    speed?: boolean         // default: true — output token speed (e.g., "42 tok/s"), tracked via delta between cycles in cache
     duration?: boolean      // default: true
   }
   contextValue?: 'percent' | 'tokens' | 'both'  // default: 'both'
@@ -260,8 +282,10 @@ interface VitalsConfig {
 
 - Each JSONL line wrapped in try/catch
 - Skip unparseable lines
-- Keep last 20 tools, 10 agents
+- Keep last 20 tools, 10 agents (sliding window — oldest dropped, display only)
 - Stream with readline
+- Tool aggregation for display: completed tools with the same name are grouped (e.g., "✓ Read ×3"). Running tools shown individually with their target.
+- Git data cached to disk with a 5-second TTL to avoid spawning git every 300ms
 
 ## Testing
 
