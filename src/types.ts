@@ -143,4 +143,5 @@ export interface RenderContext {
   layoutMode: LayoutMode;
   memoryUsage?: { used: number; total: number };
   speed?: number;
+  updateAvailable?: boolean;
 }

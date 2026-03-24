@@ -53,6 +53,11 @@ export function renderIdentityLine(ctx: RenderContext): string {
     parts.push(c(ctx.config.colors.muted, `\u23F1 ${formatDuration(ctx.sessionDuration)}`));
   }
 
+  // Update available
+  if (ctx.updateAvailable) {
+    parts.push(c(ctx.config.colors.warning, '\u2191 update available', { dim: true }));
+  }
+
   return parts.join('  ');
 }
 
