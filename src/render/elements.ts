@@ -149,7 +149,7 @@ export function renderAgentsLine(ctx: RenderContext): string {
     const desc = truncate(agent.description, 40);
     const now = performance.timeOrigin + performance.now();
     const elapsed = formatDuration(Math.max(0, Math.floor((now - agent.startTime) / 1000)));
-    parts.push(c(ctx.config.colors.accent, `\u25D0 ${agent.type}`) +
+    parts.push(c(ctx.config.colors.accent, `\u25D0 AGENT: ${agent.type}`) +
       modelTag +
       c(ctx.config.colors.muted, `: ${desc} (${elapsed})`));
   }
@@ -218,8 +218,10 @@ export function renderRateLimitsLine(ctx: RenderContext): string {
 }
 
 function formatResetTime(timestamp: number): string {
+  // Claude Code sends resets_at as Unix seconds, not milliseconds
+  const tsMs = timestamp < 1e12 ? timestamp * 1000 : timestamp;
   const now = Date.now();
-  const diff = timestamp - now;
+  const diff = tsMs - now;
 
   if (diff <= 0) return 'soon';
 
@@ -227,8 +229,7 @@ function formatResetTime(timestamp: number): string {
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
   if (hours >= 24) {
-    const days = Math.floor(hours / 24);
-    const date = new Date(timestamp);
+    const date = new Date(tsMs);
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const day = dayNames[date.getDay()];
     const h = date.getHours();
