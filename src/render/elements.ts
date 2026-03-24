@@ -147,7 +147,8 @@ export function renderAgentsLine(ctx: RenderContext): string {
   for (const agent of running) {
     const modelTag = agent.model ? c(ctx.config.colors.muted, ` [${agent.model}]`) : '';
     const desc = truncate(agent.description, 40);
-    const elapsed = formatDuration(Math.floor((Date.now() - agent.startTime) / 1000));
+    const now = performance.timeOrigin + performance.now();
+    const elapsed = formatDuration(Math.max(0, Math.floor((now - agent.startTime) / 1000)));
     parts.push(c(ctx.config.colors.accent, `\u25D0 ${agent.type}`) +
       modelTag +
       c(ctx.config.colors.muted, `: ${desc} (${elapsed})`));

@@ -6,6 +6,15 @@ import type { TranscriptState, TranscriptCache, ToolEntry, AgentEntry, TodoEntry
 const MAX_TOOLS = 20;
 const MAX_AGENTS = 10;
 
+function toEpochMs(ts: unknown): number {
+  if (typeof ts === 'number') return ts;
+  if (typeof ts === 'string') {
+    const ms = new Date(ts).getTime();
+    return isNaN(ms) ? Date.now() : ms;
+  }
+  return Date.now();
+}
+
 // Simple non-cryptographic hash for stable cache file naming
 function fnv1a(str: string): string {
   let h = 0x811c9dc5;
@@ -69,7 +78,7 @@ export function parseTranscriptLines(lines: string[]): TranscriptState {
       if (!entry || typeof entry !== 'object') continue;
 
       if (entry.timestamp && sessionStart === undefined) {
-        sessionStart = entry.timestamp;
+        sessionStart = toEpochMs(entry.timestamp);
       }
 
       const contents = entry.message?.content;
@@ -113,7 +122,7 @@ export function parseTranscriptLines(lines: string[]): TranscriptState {
               model: input?.model,
               description: input?.description ?? '',
               status: 'running',
-              startTime: entry.timestamp ?? Date.now(),
+              startTime: toEpochMs(entry.timestamp),
             });
             continue;
           }
@@ -123,7 +132,7 @@ export function parseTranscriptLines(lines: string[]): TranscriptState {
             name,
             target: extractToolTarget(name, input ?? {}),
             status: 'running',
-            startTime: entry.timestamp ?? Date.now(),
+            startTime: toEpochMs(entry.timestamp),
           });
         }
 
@@ -134,7 +143,7 @@ export function parseTranscriptLines(lines: string[]): TranscriptState {
           const tool = toolMap.get(toolId);
           if (tool) {
             tool.status = block.is_error ? 'error' : 'completed';
-            tool.endTime = entry.timestamp ?? Date.now();
+            tool.endTime = toEpochMs(entry.timestamp);
           }
 
           const agent = agentMap.get(toolId);
