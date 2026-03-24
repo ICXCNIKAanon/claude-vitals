@@ -133,15 +133,17 @@ export function renderToolsLine(ctx: RenderContext): string {
 export function renderAgentsLine(ctx: RenderContext): string {
   if (!ctx.config.show.agents) return '';
 
-  const agents = ctx.transcript.agents;
-  if (agents.length === 0) return '';
-
-  const running = agents.filter(a => a.status === 'running');
-  const completed = agents.filter(a => a.status === 'completed');
+  const running = ctx.transcript.agents.filter(a => a.status === 'running');
+  if (running.length === 0) return '';
 
   const parts: string[] = [];
 
-  // Running agents — show individually with details
+  // Show count when multiple agents running
+  if (running.length > 1) {
+    parts.push(c(ctx.config.colors.accent, `${running.length} agents`, { bold: true }));
+  }
+
+  // Show each running agent with details
   for (const agent of running) {
     const modelTag = agent.model ? c(ctx.config.colors.muted, ` [${agent.model}]`) : '';
     const desc = truncate(agent.description, 40);
@@ -149,11 +151,6 @@ export function renderAgentsLine(ctx: RenderContext): string {
     parts.push(c(ctx.config.colors.accent, `\u25D0 ${agent.type}`) +
       modelTag +
       c(ctx.config.colors.muted, `: ${desc} (${elapsed})`));
-  }
-
-  // Completed agents — aggregate count
-  if (completed.length > 0) {
-    parts.push(c('green', `\u2713 ${completed.length} agent${completed.length > 1 ? 's' : ''} done`, { dim: true }));
   }
 
   return parts.join(c(ctx.config.colors.muted, ' \u2502 '));
