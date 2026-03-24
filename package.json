@@ -10,11 +10,16 @@
     "test": "node --test tests/**/*.test.ts --experimental-strip-types",
     "test:coverage": "c8 node --test tests/**/*.test.ts --experimental-strip-types"
   },
-  "keywords": ["claude-code", "statusline", "plugin"],
+  "keywords": [
+    "claude-code",
+    "statusline",
+    "plugin"
+  ],
   "author": "ICXCNIKAanon",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^5.7.0",
-    "c8": "^10.0.0"
+    "@types/node": "^25.5.0",
+    "c8": "^10.0.0",
+    "typescript": "^5.7.0"
   }
 }
