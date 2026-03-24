@@ -1,3 +1,4 @@
+import * as fs from 'node:fs';
 import { parseStdin, computeContextHealth } from './stdin.ts';
 import { loadConfig } from './config.ts';
 import { estimateCost } from './cost.ts';
@@ -13,6 +14,10 @@ export async function main(
   terminalWidth?: number,
 ): Promise<string> {
   try {
+    if (process.env.DEBUG_VITALS) {
+      try { fs.writeFileSync('/tmp/claude-vitals-debug.json', stdinRaw); } catch {}
+    }
+
     const stdin = parseStdin(stdinRaw);
     const config = loadConfig();
     const context = computeContextHealth(stdin);
