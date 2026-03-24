@@ -121,9 +121,18 @@ export function renderToolsLine(ctx: RenderContext): string {
   for (const tool of completed) {
     grouped.set(shortToolName(tool.name), (grouped.get(shortToolName(tool.name)) ?? 0) + 1);
   }
-  for (const [name, count] of grouped) {
+  // Sort by count descending, show top 5, collapse rest
+  const sorted = [...grouped.entries()].sort((a, b) => b[1] - a[1]);
+  const MAX_TOOL_GROUPS = 5;
+  const shown = sorted.slice(0, MAX_TOOL_GROUPS);
+  const overflow = sorted.slice(MAX_TOOL_GROUPS);
+  for (const [name, count] of shown) {
     const countStr = count > 1 ? ` \u00D7${count}` : '';
     parts.push(c('green', `\u2713 ${name}${countStr}`, { dim: true }));
+  }
+  if (overflow.length > 0) {
+    const overflowTotal = overflow.reduce((sum, [, n]) => sum + n, 0);
+    parts.push(c(ctx.config.colors.muted, `+${overflowTotal} more`, { dim: true }));
   }
 
   const errored = tools.filter(t => t.status === 'error');
