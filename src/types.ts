@@ -144,4 +144,5 @@ export interface RenderContext {
   memoryUsage?: { used: number; total: number };
   speed?: number;
   updateAvailable?: boolean;
+  shipsafe?: import('./shipsafe.ts').ShipSafeState | null;
 }

@@ -3,6 +3,7 @@ import { renderBar, getAdaptiveBarWidth } from './bar.ts';
 import { formatDuration, formatTokens } from '../system.ts';
 import { formatCost } from '../cost.ts';
 import type { RenderContext, ToolEntry } from '../types.ts';
+import type { ShipSafeState } from '../shipsafe.ts';
 
 export function renderIdentityLine(ctx: RenderContext): string {
   const parts: string[] = [];
@@ -260,6 +261,47 @@ export function renderMemoryLine(ctx: RenderContext): string {
   if (!ctx.config.show.memory || !ctx.memoryUsage) return '';
   const { used, total } = ctx.memoryUsage;
   return c(ctx.config.colors.muted, `RAM: ${used} / ${total} GB`, { dim: true });
+}
+
+export function renderShipSafeLine(state: ShipSafeState | null): string {
+  if (!state || !state.installed) return '';
+
+  // ShipSafe installed but no scan results yet
+  if (!state.score) {
+    return c('cyan', '\u26F5 ShipSafe') + '  ' + c('white', 'run', { dim: true }) + ' ' + c('cyan', 'shipsafe scan');
+  }
+
+  const scoreColors: Record<string, string> = {
+    'A': 'green',
+    'B': 'green',
+    'C': 'yellow',
+    'D': 'red',
+    'F': 'red',
+  };
+
+  const color = scoreColors[state.score] ?? 'white';
+  const parts: string[] = [];
+
+  parts.push(c('cyan', '\u26F5'));
+  parts.push(c(color, state.score, { bold: true }));
+
+  if (state.findingsCount !== undefined) {
+    if (state.findingsCount === 0) {
+      parts.push(c('green', 'clean'));
+    } else {
+      const counts: string[] = [];
+      if (state.critical && state.critical > 0) counts.push(c('red', `${state.critical} crit`));
+      if (state.high && state.high > 0) counts.push(c('red', `${state.high} high`));
+      if (counts.length === 0) counts.push(c('yellow', `${state.findingsCount} findings`));
+      parts.push(counts.join(' '));
+    }
+  }
+
+  if (state.autoFixable && state.autoFixable > 0) {
+    parts.push(c('cyan', `${state.autoFixable} fixable`));
+  }
+
+  return parts.join('  ');
 }
 
 function truncate(text: string, maxLen: number): string {

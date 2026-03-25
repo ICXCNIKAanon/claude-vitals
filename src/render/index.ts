@@ -7,6 +7,7 @@ import {
   renderTodosLine,
   renderRateLimitsLine,
   renderMemoryLine,
+  renderShipSafeLine,
 } from './elements.ts';
 import type { RenderContext, LayoutMode } from '../types.ts';
 
@@ -52,6 +53,9 @@ function renderExpanded(ctx: RenderContext): string {
 
   const memoryLine = renderMemoryLine(ctx);
   if (memoryLine) lines.push(memoryLine);
+
+  const shipsafeLine = renderShipSafeLine(ctx.shipsafe ?? null);
+  if (shipsafeLine) lines.push(shipsafeLine);
 
   return lines.join('\n');
 }

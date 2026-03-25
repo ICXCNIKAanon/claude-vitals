@@ -6,6 +6,7 @@ import { getGitState } from './git.ts';
 import { getMemoryUsage } from './system.ts';
 import { parseTranscript } from './transcript.ts';
 import { checkForUpdate } from './update-check.ts';
+import { getShipSafeState } from './shipsafe.ts';
 import { render, detectLayoutMode } from './render/index.ts';
 import { c } from './render/color.ts';
 import type { RenderContext } from './types.ts';
@@ -50,10 +51,11 @@ export async function main(
 
     const memoryUsage = config.show.memory ? getMemoryUsage() : undefined;
     const updateAvailable = await checkForUpdate();
+    const shipsafe = getShipSafeState(stdin.cwd);
 
     const ctx: RenderContext = {
       stdin, context, transcript, git, config, cost,
-      sessionDuration, terminalWidth: width, layoutMode, memoryUsage, updateAvailable,
+      sessionDuration, terminalWidth: width, layoutMode, memoryUsage, updateAvailable, shipsafe,
     };
 
     return render(ctx);
