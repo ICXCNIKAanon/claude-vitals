@@ -84,6 +84,29 @@ All options are optional — defaults are used for anything not specified.
 
 Colors support named colors, hex (`#ff0000`), and 256-color indices (`196`).
 
+## ShipSafe Integration
+
+claude-vitals automatically detects if [ShipSafe](https://github.com/ICXCNIKAanon/shipsafe) is installed and displays your project's security score in the statusline.
+
+[ShipSafe](https://shipsafe.org) is a security scanner built for developers who ship fast. It runs 1,200+ detection rules locally on your machine — SQL injection, prompt injection, hardcoded secrets, malicious MCP servers, and more. One command install, zero config, zero cloud. Your code never leaves your machine.
+
+When ShipSafe is installed, you'll see an additional line:
+
+```
+⛵  A  clean                          # All clear
+⛵  C  11 findings                    # Medium-severity issues found
+⛵  D  3 crit 2 high  5 fixable      # Critical/high issues with auto-fix available
+⛵  ShipSafe  run shipsafe scan       # Installed but no scan run yet
+```
+
+The line only appears when ShipSafe is installed. No configuration needed — it reads the cached scan results from `.shipsafe/last-scan.json` (written after every `shipsafe scan`). No re-scanning, no performance impact.
+
+**Install ShipSafe:**
+
+```bash
+npm install -g @shipsafe/cli
+```
+
 ## Requirements
 
 - Node.js 22+
